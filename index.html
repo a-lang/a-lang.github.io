@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A-Lang | Systems Architect × AI Engineer</title>
+  <meta name="description" content="A-Lang — 20+ years Linux/UNIX system administration, transitioning into AI/RAG application development.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ================================
+       1. CSS Reset / Base
+       ================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Colors - Dark Theme (default) */
+      --color-bg-primary: #0a0e14;
+      --color-bg-secondary: #1a1f29;
+      --color-bg-card: #1e2330;
+      --color-text-primary: #c5c8c6;
+      --color-text-secondary: #8b9298;
+      --color-text-heading: #e8e8e8;
+      --color-accent: #00e5ff;
+      --color-accent-green: #5af78e;
+      --color-accent-red: #ff6c6c;
+      --color-accent-yellow: #e3b341;
+      --color-border: #2a3040;
+      --color-nav-bg: rgba(10, 14, 20, 0.95);
+      --color-input-bg: #131824;
+
+      /* Typography */
+      --font-mono: 'JetBrains Mono', Menlo, Consolas, monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-cn: 'Noto Sans TC', sans-serif;
+
+      /* Font Sizes */
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.25rem;
+      --text-2xl: 1.5rem;
+      --text-3xl: clamp(1.5rem, 4vw, 3rem);
+      --text-hero: clamp(2rem, 5vw, 4rem);
+
+      /* Spacing */
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 1rem;
+      --space-4: 1.5rem;
+      --space-5: 2rem;
+      --space-6: 3rem;
+      --space-8: 4rem;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 20px rgba(0, 229, 255, 0.15);
+
+      /* Transitions */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-fast: 150ms;
+      --duration-base: 300ms;
+      --duration-slow: 600ms;
+
+      /* Layout */
+      --max-width: 1200px;
+      --nav-height: 64px;
+    }
+
+    /* Light Theme */
+    .light-theme {
+      --color-bg-primary: #fafafa;
+      --color-bg-secondary: #f0f0f0;
+      --color-bg-card: #ffffff;
+      --color-text-primary: #2a2a2a;
+      --color-text-secondary: #666666;
+      --color-text-heading: #111111;
+      --color-accent: #007a8a;
+      --color-accent-green: #2d9a5f;
+      --color-accent-red: #d32f2f;
+      --color-accent-yellow: #c49000;
+      --color-border: #d0d0d0;
+      --color-nav-bg: rgba(250, 250, 250, 0.95);
+      --color-input-bg: #f5f5f5;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+      --shadow-glow: 0 0 20px rgba(0, 122, 138, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color var(--duration-base) var(--ease-in-out),
+                  color var(--duration-base) var(--ease-in-out);
+    }
+
+    /* ================================
+       2. Navigation
+       ================================ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-height);
+      background: var(--color-nav-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+      z-index: 1000;
+      transition: transform var(--duration-base) var(--ease-in-out);
+    }
+    .nav.hidden { transform: translateY(-100%); }
+
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--space-4);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      font-family: var(--font-mono);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text-heading);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    .nav-prompt { color: var(--color-accent); }
+
+    .nav-links {
+      display: flex;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    .nav-link {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      padding: var(--space-2) var(--space-1);
+      border-bottom: 2px solid transparent;
+      transition: color var(--duration-fast) var(--ease-in-out),
+                  border-color var(--duration-fast) var(--ease-in-out);
+    }
+    .nav-link:hover { color: var(--color-accent); }
+    .nav-link.active {
+      color: var(--color-accent);
+      border-bottom-color: var(--color-accent);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .lang-toggle {
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-1) var(--space-2);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      display: flex;
+      gap: 2px;
+      color: var(--color-text-secondary);
+      transition: border-color var(--duration-fast) var(--ease-in-out);
+    }
+    .lang-toggle:hover { border-color: var(--color-accent); }
+    .lang-label.active { color: var(--color-accent); font-weight: 700; }
+    .lang-sep { color: var(--color-text-secondary); }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      transition: border-color var(--duration-fast) var(--ease-in-out),
+                  color var(--duration-fast) var(--ease-in-out);
+    }
+    .theme-toggle:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--color-text-primary);
+      transition: transform var(--duration-base) var(--ease-in-out);
+    }
+
+    /* ================================
+       3. Sections
+       ================================ */
+    .main { margin-top: var(--nav-height); }
+
+    .section {
+      display: none;
+      min-height: calc(100vh - var(--nav-height));
+      padding: var(--space-6) var(--space-4);
+      animation: fadeInUp var(--duration-slow) var(--ease-out-expo);
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: var(--text-xl);
+      color: var(--color-text-heading);
+      margin-bottom: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .prompt {
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    /* ================================
+       4. Hero / Home
+       ================================ */
+    .hero {
+      text-align: center;
+      padding: var(--space-8) 0 var(--space-6);
+    }
+
+    .hero-terminal {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      text-align: left;
+      display: inline-block;
+      min-width: 300px;
+    }
+
+    .terminal-line {
+      padding: var(--space-1) 0;
+      display: flex;
+      align-items: baseline;
+    }
+    .terminal-line .prompt { margin-right: var(--space-2); }
+    .terminal-text { color: var(--color-accent-green); }
+    .terminal-line:last-child .terminal-text {
+      color: var(--color-text-heading);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+    }
+
+    .cursor {
+      animation: blink 1s steps(2) infinite;
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .hero-title {
+      font-family: var(--font-sans);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--color-text-heading);
+      margin-bottom: var(--space-2);
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      justify-content: center;
+      margin-bottom: var(--space-5);
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      padding: var(--space-1) var(--space-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-secondary);
+      transition: border-color var(--duration-fast) var(--ease-in-out),
+                  color var(--duration-fast) var(--ease-in-out);
+    }
+    .tag:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--duration-fast) var(--ease-in-out);
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--color-accent);
+      color: #0a0e14;
+      border: none;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      box-shadow: var(--shadow-glow);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-accent);
+    }
+    .btn-outline:hover {
+      background: var(--color-accent);
+      color: #0a0e14;
+    }
+
+    /* ================================
+       5. Featured Cards
+       ================================ */
+    .featured-section,
+    .status-section {
+      margin-top: var(--space-6);
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+
+    .featured-card,
+    .project-card {
+      background: var(--color-bg-card);
+      border-left: 4px solid var(--color-accent);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--duration-base) var(--ease-out-expo),
+                  box-shadow var(--duration-base) var(--ease-out-expo);
+    }
+    .featured-card:hover,
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .card-thumbnail {
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-thumbnail-wrap {
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-thumbnail-abbr {
+      font-family: var(--font-mono);
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.1em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: absolute;
+    }
+    .card-thumbnail-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      inset: 0;
+    }
+
+    .card-body {
+      padding: var(--space-3);
+    }
+
+    .card-category {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-accent);
+      text-transform: uppercase;
+      margin-bottom: var(--space-1);
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: var(--text-lg);
+      color: var(--color-text-heading);
+      margin-bottom: var(--space-2);
+    }
+
+    .card-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+      line-height: 1.5;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-1);
+      margin-bottom: var(--space-2);
+    }
+
+    .card-links {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .card-link {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duration-fast) var(--ease-in-out);
+    }
+    .card-link:hover { border-bottom-color: var(--color-accent); }
+    .card-link-youtube::before { content: '▶ '; }
+
+    /* ================================
+       6. Status / Skill Bars
+       ================================ */
+    .status-panels {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+
+    .status-panel {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-accent);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-card);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .skill-bar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+    }
+
+    .skill-bar-name {
+      min-width: 140px;
+      color: var(--color-text-primary);
+    }
+
+    .skill-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .skill-bar-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 3px;
+      transition: width 1s var(--ease-out-expo);
+    }
+
+    .skill-bar-percent {
+      min-width: 32px;
+      text-align: right;
+      color: var(--color-text-secondary);
+    }
+
+    /* ================================
+       7. Portfolio
+       ================================ */
+    .portfolio {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .portfolio-tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-in-out);
+    }
+    .tab:hover {
+      border-color: var(--color-accent);
+      color: var(--color-text-primary);
+    }
+    .tab.active {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--color-bg-card);
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+
+    /* ================================
+       8. About
+       ================================ */
+    .about {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .about-panel {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .about-intro {
+      font-size: var(--text-base);
+      color: var(--color-text-primary);
+      line-height: 1.8;
+      margin: var(--space-3) 0;
+    }
+
+    .about-links {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    .social-link {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-accent);
+      text-decoration: none;
+      padding: var(--space-1) var(--space-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all var(--duration-fast) var(--ease-in-out);
+    }
+    .social-link:hover {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      color: #0a0e14;
+    }
+
+    /* Skills Tree */
+    .skills-tree {
+      padding: var(--space-2) 0;
+    }
+
+    .skill-category {
+      margin-bottom: var(--space-4);
+    }
+
+    .category-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-accent);
+      margin-bottom: var(--space-2);
+      text-transform: uppercase;
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) 0;
+    }
+
+    .tree-prefix {
+      font-family: var(--font-mono);
+      color: var(--color-text-secondary);
+      min-width: 24px;
+    }
+
+    .skill-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-text-primary);
+      min-width: 180px;
+    }
+
+    .skill-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .skill-bar-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 3px;
+      transition: width 1s var(--ease-out-expo);
+    }
+
+    .skill-percent {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* Work Timeline */
+    .work-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .work-item {
+      border-left: 2px solid var(--color-accent);
+      padding-left: var(--space-4);
+      position: relative;
+    }
+    .work-item::before {
+      content: '>';
+      position: absolute;
+      left: -7px;
+      top: 0;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-accent);
+      font-size: var(--text-sm);
+    }
+
+    .work-period {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-accent);
+      margin-bottom: var(--space-1);
+    }
+
+    .work-role {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-heading);
+    }
+
+    .work-company {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .work-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Certifications */
+    .certs-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .cert-item {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+    }
+
+    .cert-bullet {
+      color: var(--color-accent);
+      font-size: var(--text-sm);
+    }
+
+    .cert-link {
+      color: var(--color-accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duration-fast) var(--ease-in-out);
+    }
+    .cert-link:hover { border-bottom-color: var(--color-accent); }
+
+    /* ================================
+       9. Contact
+       ================================ */
+    .contact {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .contact-panel {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+    }
+
+    .contact-line {
+      padding: var(--space-2) 0;
+      font-family: var(--font-mono);
+      font-size: var(--text-base);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-2);
+    }
+
+    .contact-label {
+      color: var(--color-accent);
+      font-weight: 600;
+      min-width: 5rem;
+    }
+
+    .contact-link {
+      color: var(--color-text-primary);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--duration-fast) var(--ease-in-out),
+                  color var(--duration-fast) var(--ease-in-out);
+    }
+    .contact-link:hover {
+      border-bottom-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .contact-quote {
+      text-align: center;
+      margin-top: var(--space-5);
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+
+    /* ================================
+       10. Responsive
+       ================================ */
+    @media (max-width: 639px) {
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--color-bg-primary);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-5);
+        z-index: 99;
+      }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: flex; }
+
+      .hero-tags { justify-content: center; }
+      .featured-grid { grid-template-columns: 1fr; }
+      .status-panels { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+
+      .about-panel { padding: var(--space-3); }
+      .contact-panel { padding: var(--space-3); }
+
+      .hero-title { font-size: var(--text-2xl); }
+      .section { padding: var(--space-4) var(--space-3); }
+
+      .skill-name { min-width: 100px; }
+      .work-item { padding-left: var(--space-3); }
+
+      .card-thumbnail-abbr { font-size: 1.2rem; }
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) {
+      .nav-toggle { display: none; }
+      .featured-grid { grid-template-columns: repeat(2, 1fr); }
+      .status-panels { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1024px) {
+      .nav-toggle { display: none; }
+      .featured-grid { grid-template-columns: repeat(3, 1fr); }
+      .status-panels { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ================================
+       11. Reduced Motion
+       ================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .skill-bar-fill { transition: none !important; }
+      .cursor { animation: none !important; opacity: 1 !important; }
+      .section { animation: none !important; }
+    }
+
+    /* ================================
+       12. Chinese Font Override
+       ================================ */
+    [lang="zh-TW"] body,
+    [lang="zh-TW"] .hero-subtitle,
+    [lang="zh-TW"] .hero-tags,
+    [lang="zh-TW"] .card-desc,
+    [lang="zh-TW"] .about-intro,
+    [lang="zh-TW"] .work-desc {
+      font-family: var(--font-cn), var(--font-sans);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#home" class="nav-brand">
+        <span class="nav-prompt">&gt;_</span> A-Lang
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link active" data-i18n="nav_home">首頁</a>
+        <a href="#portfolio" class="nav-link" data-i18n="nav_portfolio">作品集</a>
+        <a href="#about" class="nav-link" data-i18n="nav_about">關於我</a>
+        <a href="#contact" class="nav-link" data-i18n="nav_contact">聯絡我</a>
+      </div>
+      <div class="nav-actions">
+        <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+          <span class="lang-label active">中</span><span class="lang-sep">/</span><span class="lang-label">EN</span>
+        </button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <span class="theme-icon" id="themeIcon">&#9790;</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main" id="main">
+    <!-- ================================
+         Home Section
+         ================================ -->
+    <section class="section" id="home" data-section="home">
+      <div class="section-inner">
+        <div class="hero">
+          <div class="hero-terminal">
+            <div class="terminal-line" id="terminalLine1">
+              <span class="prompt">&gt;_</span> <span class="terminal-text" id="termText1"></span><span class="cursor" id="cursor1">▊</span>
+            </div>
+            <div class="terminal-line" id="terminalLine2">
+              <span class="prompt">&gt;_</span> <span class="terminal-text" id="termText2"></span><span class="cursor" id="cursor2">▊</span>
+            </div>
+            <div class="terminal-line" id="terminalLine3">
+              <span class="prompt">&gt;_</span> <span class="terminal-text" id="termText3"></span><span class="cursor" id="cursor3">▊</span>
+            </div>
+          </div>
+          <h1 class="hero-title" data-i18n="hero_title">Systems Architect × AI Engineer</h1>
+          <p class="hero-subtitle" data-i18n="hero_subtitle">20+ 年 Linux/UNIX 系統管理 · RAG · LLM · 資安分析</p>
+          <div class="hero-tags">
+            <span class="tag">Linux</span>
+            <span class="tag">RAG</span>
+            <span class="tag">LLM</span>
+            <span class="tag">Cybersecurity</span>
+            <span class="tag">Python</span>
+            <span class="tag">DB2</span>
+          </div>
+          <div class="hero-actions">
+            <a href="#portfolio" class="btn btn-primary" data-i18n="hero_cta_portfolio">查看作品集</a>
+            <a href="#about" class="btn btn-outline" data-i18n="hero_cta_about">認識更多</a>
+          </div>
+        </div>
+
+        <div class="featured-section">
+          <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="featured_title">精選作品</span></h2>
+          <div class="featured-grid" id="featuredGrid"></div>
+        </div>
+
+        <div class="status-section">
+          <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="status_title">系統狀態</span></h2>
+          <div class="status-panels">
+            <div class="status-panel">
+              <div class="panel-header"><span class="prompt">&gt;_</span> <span data-i18n="status_skills">Skills</span></div>
+              <div class="skill-bars" id="skillBars"></div>
+            </div>
+            <div class="status-panel">
+              <div class="panel-header"><span class="prompt">&gt;_</span> <span data-i18n="status_runtime">Runtime</span></div>
+              <div class="skill-bars" id="runtimeBars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================
+         Portfolio Section
+         ================================ -->
+    <section class="section" id="portfolio" data-section="portfolio">
+      <div class="section-inner">
+        <div class="portfolio">
+          <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="portfolio_title">作品集</span></h2>
+          <div class="portfolio-tabs">
+            <button class="tab active" data-filter="ai_rag"><span class="prompt">&gt;_</span> ai_rag</button>
+            <button class="tab" data-filter="infra"><span class="prompt">&gt;_</span> infra</button>
+            <button class="tab" data-filter="embedded"><span class="prompt">&gt;_</span> embedded</button>
+          </div>
+          <div class="portfolio-grid" id="portfolioGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================
+         About Section
+         ================================ -->
+    <section class="section" id="about" data-section="about">
+      <div class="section-inner">
+        <div class="about">
+          <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="about_title">about --verbose</span></h2>
+
+          <div class="about-panel">
+            <div class="panel-header"><span class="prompt">&gt;_</span> whoami</div>
+            <p class="about-intro" data-i18n="about_intro">擁有 20+ 年 Linux/UNIX 系統管理經驗的資深 IT 工程師，近年積極轉型投入 AI/RAG 應用開發。熱衷探索開源專案並將技術落地應用於實際場景。</p>
+            <div class="about-links">
+              <a href="https://www.linkedin.com/in/alanghsu/" target="_blank" rel="noopener" class="social-link">LinkedIn</a>
+              <a href="https://github.com/a-lang" target="_blank" rel="noopener" class="social-link">GitHub</a>
+            </div>
+          </div>
+
+          <div class="about-panel">
+            <div class="panel-header"><span class="prompt">&gt;_</span> <span data-i18n="about_skills_title">skills --matrix</span></div>
+            <div class="skills-tree" id="skillsTree"></div>
+          </div>
+
+          <div class="about-panel">
+            <div class="panel-header"><span class="prompt">&gt;_</span> <span data-i18n="about_work_title">work --history</span></div>
+            <div class="work-timeline" id="workTimeline"></div>
+          </div>
+
+          <div class="about-panel">
+            <div class="panel-header"><span class="prompt">&gt;_</span> <span data-i18n="about_certs_title">certs --list</span></div>
+            <div class="certs-list" id="certsList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================
+         Contact Section
+         ================================ -->
+    <section class="section" id="contact" data-section="contact">
+      <div class="section-inner">
+        <div class="contact">
+          <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="contact_title">contact --open</span></h2>
+          <div class="contact-panel">
+            <div class="contact-line">
+              <span class="prompt">&gt;_</span> <span class="contact-label">LinkedIn:</span> <a href="https://www.linkedin.com/in/alanghsu/" target="_blank" rel="noopener" class="contact-link">linkedin.com/in/alanghsu/</a>
+            </div>
+            <div class="contact-line">
+              <span class="prompt">&gt;_</span> <span class="contact-label">GitHub:</span> <a href="https://github.com/a-lang" target="_blank" rel="noopener" class="contact-link">github.com/a-lang</a>
+            </div>
+            <div class="contact-line">
+              <span class="prompt">&gt;_</span> <span class="contact-label">Email:</span> <a href="mailto:alang.hsu@gmail.com" class="contact-link">alang.hsu@gmail.com</a>
+            </div>
+            <div class="contact-line">
+              <span class="prompt">&gt;_</span> <span class="contact-label">Website:</span> <a href="https://osslab.tw/" target="_blank" rel="noopener" class="contact-link">osslab.tw</a>
+            </div>
+          </div>
+          <p class="contact-quote" data-i18n="contact_quote">「連絡是最好的開始。」</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ================================
+    // 1. i18n Data
+    // ================================
+    const i18nData = {
+      zh: {
+        nav_home: '首頁',
+        nav_portfolio: '作品集',
+        nav_about: '關於我',
+        nav_contact: '聯絡我',
+        hero_title: 'Systems Architect × AI Engineer',
+        hero_subtitle: '20+ 年 Linux/UNIX 系統管理 · RAG · LLM · 資安分析',
+        hero_cta_portfolio: '查看作品集',
+        hero_cta_about: '認識更多',
+        featured_title: '精選作品',
+        status_title: '系統狀態',
+        status_skills: 'Skills',
+        status_runtime: 'Runtime',
+        portfolio_title: '作品集',
+        about_title: 'about --verbose',
+        about_intro: '擁有 20+ 年 Linux/UNIX 系統管理經驗的資深 IT 工程師，近年積極轉型投入 AI/RAG 應用開發。熱衷探索開源專案並將技術落地應用於實際場景。',
+        about_skills_title: 'skills --matrix',
+        about_work_title: 'work --history',
+        about_certs_title: 'certs --list',
+        contact_title: 'contact --open',
+        contact_quote: '「連絡是最好的開始。」',
+        term_init: '正在初始化...',
+        term_load: '正在載入設定檔...',
+        term_name: 'A-Lang'
+      },
+      en: {
+        nav_home: 'Home',
+        nav_portfolio: 'Portfolio',
+        nav_about: 'About',
+        nav_contact: 'Contact',
+        hero_title: 'Systems Architect × AI Engineer',
+        hero_subtitle: '20+ Years Linux/UNIX System Admin · RAG · LLM · Cybersecurity',
+        hero_cta_portfolio: 'View Portfolio',
+        hero_cta_about: 'Learn More',
+        featured_title: 'Featured Work',
+        status_title: 'System Status',
+        status_skills: 'Skills',
+        status_runtime: 'Runtime',
+        portfolio_title: 'Portfolio',
+        about_title: 'about --verbose',
+        about_intro: 'Senior IT professional with 20+ years of Linux/UNIX system administration experience, now actively transitioning into AI/RAG application development. Passionate about open-source projects and applying technology to real-world scenarios.',
+        about_skills_title: 'skills --matrix',
+        about_work_title: 'work --history',
+        about_certs_title: 'certs --list',
+        contact_title: 'contact --open',
+        contact_quote: '"Connection is the best beginning."',
+        term_init: 'initializing...',
+        term_load: 'loading profile...',
+        term_name: 'A-Lang'
+      }
+    };
+
+    // ================================
+    // 2. Content Data
+    // ================================
+    const featuredData = [
+      {
+        title: 'TW-HRGPT',
+        category_zh: 'AI / RAG',
+        category_en: 'AI / RAG',
+        desc_zh: '台灣人資法律 AI 小幫手，運用生成式 AI 在安全隱私條件下整合內部知識庫',
+        desc_en: 'Taiwan HR & Legal AI assistant leveraging generative AI with RAG for internal knowledge base',
+        tags: ['LangChain', 'Streamlit', 'Vector DB', 'RAG'],
+        thumbnail_abbr: 'HRGPT',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a4a 50%, #00e5ff 100%)',
+        thumbnail_img: 'assets/screenshots/tw-hrgpt.png'
+      },
+      {
+        title: 'NextRadio',
+        category_zh: '嵌入式 / IoT',
+        category_en: 'Embedded / IoT',
+        desc_zh: '將終止服務的網路電視盒改造為網路收音機，Python 嵌入式系統開發',
+        desc_en: 'Repurposed discontinued IPTV box into an internet radio using Python on embedded Linux',
+        tags: ['Python', 'Embedded Linux', 'ARM'],
+        thumbnail_abbr: 'NRFM',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a1a 50%, #5af78e 100%)',
+        thumbnail_img: 'assets/screenshots/nextradio.jpg'
+      },
+      {
+        title: 'IBM DB2 Dashboard',
+        category_zh: '系統基礎設施',
+        category_en: 'Infrastructure',
+        desc_zh: '即時資料庫監控儀表板，使用 Grafana + Telegraf + InfluxDB 開源方案',
+        desc_en: 'Real-time database monitoring dashboard built with Grafana + Telegraf + InfluxDB',
+        tags: ['Grafana', 'Telegraf', 'InfluxDB'],
+        thumbnail_abbr: 'DB2',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a2a3a 50%, #4a9eff 100%)',
+        thumbnail_img: 'assets/screenshots/db2-dashboard.png'
+      }
+    ];
+
+    const projectsData = [
+      {
+        id: 'tw-hrgpt',
+        category: 'ai_rag',
+        title: 'TW-HRGPT',
+        title_zh: '台灣人資法律 AI 小幫手',
+        title_en: 'Taiwan HR & Legal AI Assistant',
+        desc_zh: '運用生成式 AI 技術，在安全與隱私的條件下，將 AI 應用於企業內部知識庫。結合 RAG 架構與多種 LLM 模型，實現可信賴的內部問答系統。',
+        desc_en: 'Leveraging generative AI to apply AI to corporate internal knowledge bases under security and privacy conditions. Combining RAG architecture with multiple LLM models for a trustworthy internal Q&A system.',
+        tags: ['LangChain', 'Streamlit', 'Vector DB', 'RAG'],
+        github: 'https://github.com/a-lang/tw-hrgpt',
+        thumbnail_abbr: 'HRGPT',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a4a 50%, #00e5ff 100%)',
+        thumbnail_img: 'assets/screenshots/tw-hrgpt.png'
+      },
+      {
+        id: 'thsr-mcp',
+        category: 'ai_rag',
+        title: '高鐵查詢 MCP',
+        title_zh: '台灣高鐵查詢 MCP',
+        title_en: 'THSR Query MCP',
+        desc_zh: '使用 MCP 協定串接 LLM API，實現台灣高鐵時刻表的自然語言查詢功能。',
+        desc_en: 'Using MCP protocol to integrate LLM API for natural language querying of Taiwan High Speed Rail timetables.',
+        tags: ['Python', 'MCP', 'LLM API'],
+        github: 'https://github.com/a-lang/thsrc_mcp',
+        thumbnail_abbr: 'THSR',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a4a 50%, #00e5ff 100%)',
+        thumbnail_img: 'assets/screenshots/thsr-mcp.png'
+      },
+      {
+        id: 'gemini-ocr',
+        category: 'ai_rag',
+        title: 'Gemini OCR API',
+        title_zh: 'Gemini OCR API 整合',
+        title_en: 'Gemini OCR API Integration',
+        desc_zh: '整合 Google Gemini 模型的 OCR 功能，提供圖片文字辨識 API 服務。',
+        desc_en: 'Integrating Google Gemini model OCR capabilities to provide image text recognition API service.',
+        tags: ['FastAPI', 'Gemini', 'OCR'],
+        github: 'https://github.com/a-lang/gemini-ocr-fastapi',
+        thumbnail_abbr: 'OCR',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a4a 50%, #00e5ff 100%)',
+        thumbnail_img: 'assets/screenshots/gemini-ocr.png'
+      },
+      {
+        id: 'linux-monitor',
+        category: 'infra',
+        title: 'Linux 主機監控',
+        title_zh: 'Linux 主機監控系統',
+        title_en: 'Linux Host Monitoring System',
+        desc_zh: '基於 Prometheus + Grafana + Node Exporter 的即時主機監控解決方案，持續運行中。',
+        desc_en: 'Real-time host monitoring solution based on Prometheus + Grafana + Node Exporter, currently in production.',
+        tags: ['Prometheus', 'Grafana', 'Node Exporter'],
+        github: '',
+        thumbnail_abbr: 'LINUX',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a2a3a 50%, #4a9eff 100%)',
+        thumbnail_img: 'assets/screenshots/linux-monitor.png'
+      },
+      {
+        id: 'db2-dashboard',
+        category: 'infra',
+        title: 'IBM DB2 監控儀表板',
+        title_zh: 'IBM DB2 監控儀表板',
+        title_en: 'IBM DB2 Monitoring Dashboard',
+        desc_zh: '即時資料庫監控儀表板，使用 Grafana + Telegraf + InfluxDB 開源方案，視覺化呈現 DB2 效能指標。',
+        desc_en: 'Real-time database monitoring dashboard using Grafana + Telegraf + InfluxDB open-source stack for visualizing DB2 performance metrics.',
+        tags: ['Grafana', 'Telegraf', 'InfluxDB'],
+        github: 'https://github.com/a-lang/telegraf-db2',
+        thumbnail_abbr: 'DB2',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a2a3a 50%, #4a9eff 100%)',
+        thumbnail_img: 'assets/screenshots/db2-dashboard.png'
+      },
+      {
+        id: 'aix-x86',
+        category: 'infra',
+        title: 'AIX on x86 虛擬化',
+        title_zh: 'AIX 7200 在 x86_64 上虛擬化',
+        title_en: 'Running AIX 7200 on x86_64 with QEMU',
+        desc_zh: '示範如何在 x86_64 機器上使用 QEMU 虛擬化技術運行 IBM AIX 7200，突破傳統 Power 架構限制。',
+        desc_en: 'Demonstrating how to run IBM AIX 7200 on x86_64 machines using QEMU virtualization, breaking traditional Power architecture limitations.',
+        tags: ['QEMU', 'AIX', 'x86_64', 'Virtualization'],
+        github: '',
+        youtube: 'https://www.youtube.com/watch?v=tU94v-vr_J0',
+        thumbnail_abbr: 'AIX',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #2a1a3a 50%, #8a6aff 100%)',
+        thumbnail_img: 'assets/screenshots/aix-x86.png'
+      },
+      {
+        id: 'nextradio',
+        category: 'embedded',
+        title: 'NextRadio',
+        title_zh: 'NextRadio 網路收音機',
+        title_en: 'NextRadio Internet Radio',
+        desc_zh: '將終止服務的網路電視盒改造為網路收音機。主程式以 Python 撰寫，運行於嵌入式 Linux 系統（ARM 架構）。',
+        desc_en: 'Repurposed a discontinued IPTV box into an internet radio. Main code written in Python running on embedded Linux (ARM architecture).',
+        tags: ['Python', 'Embedded Linux', 'ARM'],
+        github: 'https://github.com/a-lang/NextRadio',
+        thumbnail_abbr: 'NRFM',
+        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a1a 50%, #5af78e 100%)',
+        thumbnail_img: 'assets/screenshots/nextradio.jpg'
+      }
+    ];
+
+    const skillsData = {
+      skills: [
+        { name: 'Linux / AIX', level: 95 },
+        { name: 'VMware / KVM / Docker', level: 80 },
+        { name: 'Network & Firewall', level: 80 },
+        { name: 'Monitoring', level: 90 }
+      ],
+      runtime: [
+        { name: 'Python', level: 75 },
+        { name: 'RAG / LangChain', level: 70 },
+        { name: 'Shell / Bash', level: 95 },
+        { name: 'DB2 / Oracle', level: 85 }
+      ]
+    };
+
+    const skillsTreeData = [
+      {
+        category_zh: '系統管理',
+        category_en: 'SYSTEM ADMINISTRATION',
+        items: [
+          { name: 'Linux / AIX / Windows', level: 95 },
+          { name: 'VMware / KVM / Docker', level: 80 },
+          { name: 'Network & Firewall', level: 80 },
+          { name: 'Monitoring (Nagios等)', level: 90 }
+        ]
+      },
+      {
+        category_zh: '資料庫',
+        category_en: 'DATABASE',
+        items: [
+          { name: 'IBM DB2', level: 95 },
+          { name: 'Oracle', level: 80 },
+          { name: 'MySQL', level: 75 }
+        ]
+      },
+      {
+        category_zh: 'AI 與生成式',
+        category_en: 'AI & GENERATIVE',
+        items: [
+          { name: 'RAG / LangChain', level: 70 },
+          { name: 'LLM API (多家)', level: 70 },
+          { name: 'Ollama / LM Studio', level: 75 },
+          { name: 'MCP / Agent', level: 60 }
+        ]
+      },
+      {
+        category_zh: '程式開發',
+        category_en: 'CODING',
+        items: [
+          { name: 'Python', level: 75 },
+          { name: 'Shell / Bash', level: 95 },
+          { name: 'PHP / JavaScript', level: 60 }
+        ]
+      }
+    ];
+
+    const workData = [
+      {
+        period: '2013 – 2026',
+        role_zh: 'IT 工程師 · DBA · 系統管理',
+        role_en: 'IT Engineer · DBA · System Admin',
+        company_zh: '半導體公司（1000+ 人）',
+        company_en: 'Semiconductor Co. (1000+ employees)',
+        desc_zh: '管理 Linux/AIX 系統、DB2/Oracle 資料庫、VMware 虛擬化環境。建置 Grafana/Prometheus 監控系統。',
+        desc_en: 'Managed Linux/AIX systems, DB2/Oracle databases, VMware virtualization. Built Grafana/Prometheus monitoring systems.'
+      },
+      {
+        period: '2005 – 2013',
+        role_zh: 'MIS 課長 · 系統/網路管理',
+        role_en: 'MIS Section Manager · System/Network Admin',
+        company_zh: '半導體公司（200-500 人）',
+        company_en: 'Semiconductor Co. (200-500 employees)',
+        desc_zh: '負責 AIX/Linux/Windows 主機管理、DB2/Oracle 資料庫管理、VMware/Amazon EC2 虛擬化。管理 10 人以內團隊。',
+        desc_en: 'Managed AIX/Linux/Windows servers, DB2/Oracle databases, VMware/Amazon EC2 virtualization. Led a team of up to 10.'
+      },
+      {
+        period: '2003 – 2004',
+        role_zh: 'MIS 工程師',
+        role_en: 'MIS Engineer',
+        company_zh: '半導體公司（100-200 人）',
+        company_en: 'Semiconductor Co. (100-200 employees)',
+        desc_zh: '負責網路管理、Linux 伺服器管理、DRBL 無碟工作站環境架設。',
+        desc_en: 'Network management, Linux server administration, DRBL diskless workstation setup.'
+      },
+      {
+        period: '2000 – 2003',
+        role_zh: '系統工程師',
+        role_en: 'System Engineer',
+        company_zh: '軟體公司（50 人以下）',
+        company_en: 'Software Co. (under 50 employees)',
+        desc_zh: '測試軟硬體產品、校園網路建置、隨選視訊系統配置。',
+        desc_en: 'Hardware/software testing, campus networking, video-on-demand system configuration.'
+      },
+      {
+        period: '1998 – 2000',
+        role_zh: 'MIS 工程師',
+        role_en: 'MIS Engineer',
+        company_zh: '物流公司（50-100 人）',
+        company_en: 'Logistics Co. (50-100 employees)',
+        desc_zh: '負責公司內部資訊作業、硬體維護、軟體建置、員工電腦教育訓練。',
+        desc_en: 'Internal IT operations, hardware maintenance, software deployment, employee computer training.'
+      }
+    ];
+
+    const certsData = [
+      { name: 'LPIC Level 1', link: '' },
+      { name: 'RHCT', link: '' },
+      { name: 'iPAS+ AI 應用規劃師（初級）', link: '' },
+      { name: 'IBM AI Fundamentals', link: 'https://www.credly.com/badges/ae03c05b-8e9d-4e78-b336-cec86ea55da6/public_url' },
+      { name: 'Gemini Certified Educator', link: 'https://edu.google.accredible.com/80785f79-cdf2-4b25-955e-230191f225a9#acc.ZoMpcCNX' },
+      { name: 'Google Cybersecurity Certificate', link: 'https://www.coursera.org/account/accomplishments/professional-cert/487QLOFZMIED' },
+      { name: 'Google: Using Python to Interact with the OS', link: 'https://www.coursera.org/account/accomplishments/verify/O6W18WEHY1Z3' },
+      { name: 'Google: Crash Course on Python', link: 'https://www.coursera.org/account/accomplishments/verify/UVDI5LTVT3H3' },
+      { name: 'Google: Troubleshooting and Debugging Techniques', link: 'https://www.coursera.org/account/accomplishments/verify/3SDZ8BXWO5HE' },
+      { name: 'Google: Introduction to Git and GitHub', link: 'https://www.coursera.org/account/accomplishments/verify/CC80SWXPYUZ1' }
+    ];
+
+    // ================================
+    // 3. Theme Manager
+    // ================================
+    const theme = {
+      key: 'a-lang-theme',
+      init() {
+        const saved = localStorage.getItem(this.key);
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = saved ? saved === 'dark' : prefersDark;
+        this.apply(isDark);
+        document.getElementById('themeToggle').addEventListener('click', () => {
+          const current = document.documentElement.classList.contains('dark-theme');
+          this.apply(!current);
+        });
+      },
+      apply(isDark) {
+        document.documentElement.classList.toggle('dark-theme', isDark);
+        document.documentElement.classList.toggle('light-theme', !isDark);
+        document.getElementById('themeIcon').innerHTML = isDark ? '&#9790;' : '&#9728;';
+        localStorage.setItem(this.key, isDark ? 'dark' : 'light');
+      }
+    };
+
+    // ================================
+    // 4. Language Switcher
+    // ================================
+    const lang = {
+      current: localStorage.getItem('a-lang-lang') || 'zh',
+      key: 'a-lang-lang',
+      init() {
+        this.apply(this.current);
+        document.getElementById('langToggle').addEventListener('click', () => {
+          this.current = this.current === 'zh' ? 'en' : 'zh';
+          this.apply(this.current);
+          localStorage.setItem(this.key, this.current);
+        });
+      },
+      apply(langCode) {
+        this.current = langCode;
+        const data = i18nData[langCode];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.dataset.i18n;
+          if (data[key] !== undefined) el.textContent = data[key];
+        });
+        const labels = document.querySelectorAll('#langToggle .lang-label');
+        if (langCode === 'zh') {
+          labels[0].classList.add('active');
+          labels[1].classList.remove('active');
+        } else {
+          labels[0].classList.remove('active');
+          labels[1].classList.add('active');
+        }
+        document.documentElement.lang = langCode === 'zh' ? 'zh-TW' : 'en';
+        renderFeatured();
+        renderSkillBars();
+        renderSkillsTree();
+        renderWorkTimeline();
+        renderCerts();
+        portfolio.render();
+      }
+    };
+
+    // ================================
+    // 5. Navigation & Page Switching
+    // ================================
+    const nav = {
+      init() {
+        const toggle = document.getElementById('navToggle');
+        const links = document.querySelectorAll('.nav-link');
+
+        toggle.addEventListener('click', () => {
+          document.getElementById('navLinks').classList.toggle('open');
+        });
+
+        links.forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = link.getAttribute('href').substring(1);
+            this.switchTo(target);
+            document.getElementById('navLinks').classList.remove('open');
+          });
+        });
+
+        window.addEventListener('hashchange', () => {
+          const hash = location.hash.substring(1) || 'home';
+          this.switchTo(hash);
+        });
+
+        const initial = location.hash.substring(1) || 'home';
+        this.switchTo(initial);
+      },
+      switchTo(sectionId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        const target = document.getElementById(sectionId);
+        if (target) target.classList.add('active');
+        const link = document.querySelector(`.nav-link[href="#${sectionId}"]`);
+        if (link) link.classList.add('active');
+        location.hash = sectionId;
+        window.scrollTo(0, 0);
+      }
+    };
+
+    // Nav scroll hide/show
+    const navScroll = {
+      lastScroll: 0,
+      init() {
+        window.addEventListener('scroll', () => {
+          const current = window.scrollY;
+          const navEl = document.getElementById('nav');
+          if (current > this.lastScroll && current > 100) {
+            navEl.classList.add('hidden');
+          } else {
+            navEl.classList.remove('hidden');
+          }
+          this.lastScroll = current;
+        }, { passive: true });
+      }
+    };
+
+    // ================================
+    // 6. Render Functions
+    // ================================
+    function renderThumbnail(p) {
+      if (p.thumbnail_img) {
+        return `<div class="card-thumbnail-wrap" style="background:${p.thumbnail_gradient}"><img class="card-thumbnail-img" src="${p.thumbnail_img}" alt="${p.title}" onerror="this.style.display='none'"><span class="card-thumbnail-abbr">${p.thumbnail_abbr}</span></div>`;
+      }
+      return `<div class="card-thumbnail" style="background:${p.thumbnail_gradient}"><span class="card-thumbnail-abbr">${p.thumbnail_abbr}</span></div>`;
+    }
+
+    function renderFeatured() {
+      const grid = document.getElementById('featuredGrid');
+      const isZh = lang.current === 'zh';
+      grid.innerHTML = featuredData.map(p => `
+        <article class="featured-card">
+          ${renderThumbnail(p)}
+          <div class="card-body">
+            <div class="card-category">${isZh ? p.category_zh : p.category_en}</div>
+            <h3 class="card-title">${p.title}</h3>
+            <p class="card-desc">${isZh ? p.desc_zh : p.desc_en}</p>
+            <div class="card-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderSkillBars() {
+      ['skillBars', 'runtimeBars'].forEach(id => {
+        const container = document.getElementById(id);
+        const data = id === 'skillBars' ? skillsData.skills : skillsData.runtime;
+        container.innerHTML = data.map(s => `
+          <div class="skill-bar-item">
+            <span class="skill-bar-name">${s.name}</span>
+            <div class="skill-bar-track"><div class="skill-bar-fill" style="width:0%" data-level="${s.level}"></div></div>
+            <span class="skill-bar-percent">${s.level}%</span>
+          </div>
+        `).join('');
+      });
+      animateSkillBars();
+    }
+
+    function renderSkillsTree() {
+      const container = document.getElementById('skillsTree');
+      const isZh = lang.current === 'zh';
+      container.innerHTML = skillsTreeData.map(cat => {
+        const items = cat.items.map((item, i) => {
+          const prefix = i === cat.items.length - 1 ? '└──' : '├──';
+          return `
+            <div class="skill-item">
+              <span class="tree-prefix">${prefix}</span>
+              <span class="skill-name">${item.name}</span>
+              <div class="skill-bar-track"><div class="skill-bar-fill" style="width:0%" data-level="${item.level}"></div></div>
+              <span class="skill-percent">${item.level}%</span>
+            </div>`;
+        }).join('');
+        return `
+          <div class="skill-category">
+            <div class="category-label">${isZh ? cat.category_zh : cat.category_en}</div>
+            ${items}
+          </div>`;
+      }).join('');
+      animateSkillBars();
+    }
+
+    function renderWorkTimeline() {
+      const container = document.getElementById('workTimeline');
+      const isZh = lang.current === 'zh';
+      container.innerHTML = workData.map(w => `
+        <div class="work-item">
+          <div class="work-period">${w.period}</div>
+          <div class="work-role">${isZh ? w.role_zh : w.role_en}</div>
+          <div class="work-company">${isZh ? w.company_zh : w.company_en}</div>
+          <div class="work-desc">${isZh ? w.desc_zh : w.desc_en}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderCerts() {
+      const container = document.getElementById('certsList');
+      container.innerHTML = certsData.map(c => `
+        <div class="cert-item">
+          <span class="cert-bullet">◉</span>
+          ${c.link
+            ? `<a href="${c.link}" target="_blank" rel="noopener" class="cert-link">${c.name}</a>`
+            : `<span>${c.name}</span>`
+          }
+        </div>
+      `).join('');
+    }
+
+    // ================================
+    // 7. Typewriter Animation
+    // ================================
+    const typewriter = {
+      init() {
+        const lines = [
+          { el: 'termText1', cursor: 'cursor1', key: 'term_init', hold: false },
+          { el: 'termText2', cursor: 'cursor2', key: 'term_load', hold: false },
+          { el: 'termText3', cursor: 'cursor3', key: 'term_name', hold: true }
+        ];
+        let delay = 500;
+        lines.forEach((line, i) => {
+          setTimeout(() => this.typeLine(line, i === lines.length - 1), delay);
+          delay += 1500 + (i18nData[lang.current][line.key] || '').length * 50;
+        });
+      },
+      typeLine(line, isLast) {
+        const text = i18nData[lang.current][line.key];
+        const el = document.getElementById(line.el);
+        const cursorEl = document.getElementById(line.cursor);
+        el.textContent = '';
+        let i = 0;
+        const interval = setInterval(() => {
+          if (i < text.length) {
+            el.textContent += text[i];
+            i++;
+          } else {
+            clearInterval(interval);
+            if (!isLast) cursorEl.style.display = 'none';
+          }
+        }, 50);
+      }
+    };
+
+    // ================================
+    // 8. Skill Bar Animation
+    // ================================
+    function animateSkillBars() {
+      const fills = document.querySelectorAll('.skill-bar-fill');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const level = entry.target.dataset.level;
+            setTimeout(() => { entry.target.style.width = level + '%'; }, 100);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      fills.forEach(fill => observer.observe(fill));
+    }
+
+    // ================================
+    // 9. Portfolio Filter
+    // ================================
+    const portfolio = {
+      currentFilter: 'ai_rag',
+      init() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            this.currentFilter = tab.dataset.filter;
+            this.render();
+          });
+        });
+        this.render();
+      },
+      render() {
+        const grid = document.getElementById('portfolioGrid');
+        const isZh = lang.current === 'zh';
+        const filtered = projectsData.filter(p => p.category === this.currentFilter);
+        grid.innerHTML = filtered.map(p => `
+          <article class="project-card">
+            ${renderThumbnail(p)}
+            <div class="card-body">
+              <h3 class="card-title">${p.title}</h3>
+              <p class="card-desc">${isZh ? p.desc_zh : p.desc_en}</p>
+              <div class="card-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              <div class="card-links">
+                ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener" class="card-link">GitHub ↗</a>` : ''}
+                ${p.youtube ? `<a href="${p.youtube}" target="_blank" rel="noopener" class="card-link card-link-youtube">YouTube ↗</a>` : ''}
+              </div>
+            </div>
+          </article>
+        `).join('');
+      }
+    };
+
+    // ================================
+    // 10. Init
+    // ================================
+    document.addEventListener('DOMContentLoaded', () => {
+      theme.init();
+      lang.init();
+      nav.init();
+      navScroll.init();
+      renderFeatured();
+      renderSkillBars();
+      renderSkillsTree();
+      renderWorkTimeline();
+      renderCerts();
+      portfolio.init();
+      typewriter.init();
+    });
+  </script>
+</body>
+</html>
