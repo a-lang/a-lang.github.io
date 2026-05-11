@@ -124,6 +124,7 @@
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--color-border);
       z-index: 1000;
+      overflow: visible;
       transition: transform var(--duration-base) var(--ease-in-out);
     }
     .nav.hidden { transform: translateY(-100%); }
@@ -878,20 +879,37 @@
     @media (max-width: 639px) {
       .nav-links {
         display: none;
-        position: fixed;
-        top: var(--nav-height);
+        position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
-        bottom: 0;
         background: var(--color-bg-primary);
+        border-bottom: 1px solid var(--color-border);
         flex-direction: column;
         justify-content: center;
         align-items: center;
         gap: var(--space-5);
-        z-index: 99;
+        padding: var(--space-6) 0;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+      .nav-link {
+        font-size: var(--text-lg);
+        padding: var(--space-3) var(--space-5);
       }
       .nav-links.open { display: flex; }
-      .nav-toggle { display: flex; }
+      .menu-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        top: var(--nav-height);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      .menu-overlay.open { display: block; }
+      .nav-toggle { display: flex; order: 3; }
+      .nav-brand { margin-right: auto; }
+      .nav-inner { gap: var(--space-3); }
+      body.menu-open { overflow: hidden; }
 
       .hero-tags { justify-content: center; }
       .featured-grid { grid-template-columns: 1fr; }
@@ -1497,16 +1515,30 @@
         const toggle = document.getElementById('navToggle');
         const links = document.querySelectorAll('.nav-link');
 
+        const _overlay = document.createElement('div');
+        _overlay.className = 'menu-overlay';
+        document.body.appendChild(_overlay);
+
+        const _closeMenu = () => {
+          document.getElementById('navLinks').classList.remove('open');
+          _overlay.classList.remove('open');
+          document.body.classList.remove('menu-open');
+        };
+
         toggle.addEventListener('click', () => {
-          document.getElementById('navLinks').classList.toggle('open');
+          const isOpen = document.getElementById('navLinks').classList.toggle('open');
+          _overlay.classList.toggle('open', isOpen);
+          document.body.classList.toggle('menu-open', isOpen);
         });
+
+        _overlay.addEventListener('click', _closeMenu);
 
         links.forEach(link => {
           link.addEventListener('click', (e) => {
             e.preventDefault();
             const target = link.getAttribute('href').substring(1);
             this.switchTo(target);
-            document.getElementById('navLinks').classList.remove('open');
+            _closeMenu();
           });
         });
 
