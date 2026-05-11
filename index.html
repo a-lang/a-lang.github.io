@@ -451,6 +451,42 @@
       inset: 0;
     }
 
+    /* Image hover floating preview */
+    .img-preview {
+      position: fixed;
+      z-index: 9999;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.25s var(--ease-in-out), transform 0.25s var(--ease-out-expo);
+      max-width: min(640px, 92vw);
+    }
+    .img-preview.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .img-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .img-preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.25s var(--ease-in-out);
+      pointer-events: none;
+    }
+    .img-preview-overlay.visible {
+      opacity: 1;
+    }
+
     .card-body {
       padding: var(--space-3);
     }
@@ -1693,6 +1729,71 @@
     // ================================
     // 10. Init
     // ================================
+    const imgPreview = {
+      overlay: null,
+      preview: null,
+
+      init() {
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'img-preview-overlay';
+        this.preview = document.createElement('div');
+        this.preview.className = 'img-preview';
+        document.body.appendChild(this.overlay);
+        document.body.appendChild(this.preview);
+
+        document.addEventListener('mouseover', (e) => {
+          const thumb = e.target.closest('.card-thumbnail, .card-thumbnail-wrap');
+          if (!thumb) return;
+          const img = thumb.querySelector('.card-thumbnail-img');
+          if (!img) return;
+          const card = thumb.closest('.featured-card, .project-card');
+          this.show(img.src, card);
+        });
+
+        document.addEventListener('mouseout', (e) => {
+          const thumb = e.target.closest('.card-thumbnail, .card-thumbnail-wrap');
+          if (!thumb) return;
+          const related = e.relatedTarget;
+          if (related && thumb.contains(related)) return;
+          this.hide();
+        });
+      },
+
+      show(src, anchorCard) {
+        const rect = anchorCard.getBoundingClientRect();
+        const previewWidth = Math.min(640, window.innerWidth * 0.92);
+
+        this.preview.innerHTML = '<img src="' + src + '" alt="Preview">';
+        this.preview.style.width = previewWidth + 'px';
+
+        const position = () => {
+          const previewHeight = this.preview.offsetHeight || 360;
+          let left = rect.left + rect.width / 2 - previewWidth / 2;
+          left = Math.max(8, Math.min(left, window.innerWidth - previewWidth - 8));
+          let top = rect.top + rect.height / 2 - previewHeight / 2;
+          top = Math.max(8, Math.min(top, window.innerHeight - previewHeight - 8));
+          this.preview.style.left = left + 'px';
+          this.preview.style.top = top + 'px';
+          this.preview.classList.add('visible');
+          this.overlay.classList.add('visible');
+        };
+
+        const img = this.preview.querySelector('img');
+        if (img.complete) {
+          requestAnimationFrame(position);
+        } else {
+          img.onload = () => requestAnimationFrame(position);
+          img.onerror = () => { this.hide(); };
+          requestAnimationFrame(position);
+        }
+      },
+
+      hide() {
+        this.preview.classList.remove('visible');
+        this.overlay.classList.remove('visible');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       theme.init();
       lang.init();
@@ -1705,6 +1806,7 @@
       renderCerts();
       portfolio.init();
       typewriter.init();
+      imgPreview.init();
     });
   </script>
 </body>
