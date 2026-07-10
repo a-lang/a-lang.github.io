@@ -44,6 +44,12 @@ python3 -m http.server 8080
 
 No lint, test, or build commands — this is a static HTML file.
 
+## Git Workflow
+
+- Do NOT run `git commit`, `git push`, `git amend`, `git rebase`, or any other mutating git operation without explicit user confirmation in the current conversation.
+- After making code changes, always show a summary of the diff and ask "是否要 commit？" before committing.
+- Approval of a plan or "OK" does NOT imply approval to commit.
+
 ## Privacy
 
 Never add: real name, phone numbers, addresses, photos, or de-anonymized company names.
