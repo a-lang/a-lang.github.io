@@ -433,6 +433,7 @@
       justify-content: center;
       position: relative;
       overflow: hidden;
+      cursor: zoom-in;
     }
     .card-thumbnail-abbr {
       font-family: var(--font-mono);
@@ -465,10 +466,12 @@
       transform: scale(0.9);
       transition: opacity 0.25s var(--ease-in-out), transform 0.25s var(--ease-out-expo);
       max-width: min(640px, 92vw);
+      cursor: zoom-out;
     }
     .img-preview.visible {
       opacity: 1;
       transform: scale(1);
+      pointer-events: auto;
     }
     .img-preview img {
       width: 100%;
@@ -483,9 +486,11 @@
       opacity: 0;
       transition: opacity 0.25s var(--ease-in-out);
       pointer-events: none;
+      cursor: zoom-out;
     }
     .img-preview-overlay.visible {
       opacity: 1;
+      pointer-events: auto;
     }
 
     .card-body {
@@ -1773,8 +1778,8 @@
         document.body.appendChild(this.overlay);
         document.body.appendChild(this.preview);
 
-        document.addEventListener('mouseover', (e) => {
-          const thumb = e.target.closest('.card-thumbnail, .card-thumbnail-wrap');
+        document.addEventListener('click', (e) => {
+          const thumb = e.target.closest('.card-thumbnail-wrap');
           if (!thumb) return;
           const img = thumb.querySelector('.card-thumbnail-img');
           if (!img) return;
@@ -1782,12 +1787,11 @@
           this.show(img.src, card);
         });
 
-        document.addEventListener('mouseout', (e) => {
-          const thumb = e.target.closest('.card-thumbnail, .card-thumbnail-wrap');
-          if (!thumb) return;
-          const related = e.relatedTarget;
-          if (related && thumb.contains(related)) return;
-          this.hide();
+        this.overlay.addEventListener('click', () => { this.hide(); });
+        this.preview.addEventListener('click', () => { this.hide(); });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') this.hide();
         });
       },
 
