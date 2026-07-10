@@ -397,10 +397,153 @@
       margin-top: var(--space-6);
     }
 
-    .featured-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-4);
+    /* Hero Carousel (replaces featured-grid) */
+    .hero-carousel {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      height: clamp(340px, 46vh, 480px);
+    }
+    .hero-track {
+      display: flex;
+      height: 100%;
+      gap: 0;
+      transition: transform var(--duration-base) var(--ease-out-expo);
+      will-change: transform;
+    }
+    .hero-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: flex-end;
+      position: relative;
+    }
+    .hero-slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.88) 0%,
+        rgba(0, 0, 0, 0.5) 42%,
+        rgba(0, 0, 0, 0) 72%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding: var(--space-5);
+      max-width: 72%;
+      color: #fff;
+    }
+    .hero-content .card-category {
+      color: var(--color-accent);
+      margin-bottom: var(--space-1);
+    }
+    .hero-title {
+      font-family: var(--font-mono);
+      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      margin: 0 0 var(--space-2);
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    }
+    .hero-desc {
+      margin: 0 0 var(--space-3);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+    }
+    .hero-content .card-tags {
+      margin-bottom: var(--space-3);
+    }
+    .hero-content .tag {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.45);
+    }
+    .hero-content .tag:hover {
+      border-color: var(--color-accent);
+      color: #fff;
+    }
+    .hero-cta {
+      display: inline-block;
+      padding: 8px 18px;
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      background: var(--color-accent);
+      color: var(--color-bg);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background var(--duration-base) var(--ease-out-expo),
+                  color var(--duration-base) var(--ease-out-expo),
+                  box-shadow var(--duration-base) var(--ease-out-expo);
+    }
+    .hero-cta:hover {
+      background: transparent;
+      color: #fff;
+      box-shadow: var(--shadow-glow);
+    }
+    .hero-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background var(--duration-base) var(--ease-out-expo),
+                  box-shadow var(--duration-base) var(--ease-out-expo);
+    }
+    .hero-btn:hover {
+      background: var(--color-accent);
+      box-shadow: var(--shadow-glow);
+    }
+    .hero-btn:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+    .hero-prev { left: var(--space-3); }
+    .hero-next { right: var(--space-3); }
+    .hero-dots {
+      position: absolute;
+      bottom: var(--space-3);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: var(--space-2);
+      z-index: 2;
+    }
+    .hero-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: background var(--duration-base) var(--ease-out-expo),
+                  transform var(--duration-base) var(--ease-out-expo);
+    }
+    .hero-dot.active {
+      background: var(--color-accent);
+      transform: scale(1.3);
+    }
+    .hero-dot:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
     }
 
     .featured-card,
@@ -919,7 +1062,9 @@
       body.menu-open { overflow: hidden; }
 
       .hero-tags { justify-content: center; }
-      .featured-grid { grid-template-columns: 1fr; }
+      .hero-carousel { height: 300px; }
+      .hero-content { max-width: 100%; padding: var(--space-4); }
+      .hero-btn { display: none; }
       .status-panels { grid-template-columns: 1fr; }
       .portfolio-grid { grid-template-columns: 1fr; }
 
@@ -937,14 +1082,12 @@
 
     @media (min-width: 640px) and (max-width: 1023px) {
       .nav-toggle { display: none; }
-      .featured-grid { grid-template-columns: repeat(2, 1fr); }
       .status-panels { grid-template-columns: repeat(2, 1fr); }
       .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (min-width: 1024px) {
       .nav-toggle { display: none; }
-      .featured-grid { grid-template-columns: repeat(3, 1fr); }
       .status-panels { grid-template-columns: repeat(2, 1fr); }
       .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -1039,7 +1182,12 @@
 
         <div class="featured-section">
           <h2 class="section-title"><span class="prompt">&gt;_</span> <span data-i18n="featured_title">精選作品</span></h2>
-          <div class="featured-grid" id="featuredGrid"></div>
+          <div class="hero-carousel" id="featuredCarousel" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Featured projects">
+            <div class="hero-track" id="carouselTrack"></div>
+            <button class="hero-btn hero-prev" type="button" data-i18n-aria="carousel_prev" aria-label="Previous">‹</button>
+            <button class="hero-btn hero-next" type="button" data-i18n-aria="carousel_next" aria-label="Next">›</button>
+            <div class="hero-dots" id="carouselDots"></div>
+          </div>
         </div>
 
         <div class="status-section">
@@ -1152,6 +1300,9 @@
         hero_cta_portfolio: '查看作品集',
         hero_cta_about: '認識更多',
         featured_title: '精選作品',
+        carousel_cta: '查看作品',
+        carousel_prev: '上一個',
+        carousel_next: '下一個',
         status_title: '系統狀態',
         status_skills: 'Skills',
         status_runtime: 'Runtime',
@@ -1177,6 +1328,9 @@
         hero_cta_portfolio: 'View Portfolio',
         hero_cta_about: 'Learn More',
         featured_title: 'Featured Work',
+        carousel_cta: 'View Project',
+        carousel_prev: 'Previous',
+        carousel_next: 'Next',
         status_title: 'System Status',
         status_skills: 'Skills',
         status_runtime: 'Runtime',
@@ -1197,42 +1351,6 @@
     // ================================
     // 2. Content Data
     // ================================
-    const featuredData = [
-      {
-        title: 'TW-HRGPT',
-        category_zh: 'AI / RAG',
-        category_en: 'AI / RAG',
-        desc_zh: '台灣人資法律 AI 小幫手，運用生成式 AI 在安全隱私條件下整合內部知識庫',
-        desc_en: 'Taiwan HR & Legal AI assistant leveraging generative AI with RAG for internal knowledge base',
-        tags: ['LangChain', 'Streamlit', 'Vector DB', 'RAG'],
-        thumbnail_abbr: 'HRGPT',
-        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a4a 50%, #00e5ff 100%)',
-        thumbnail_img: 'assets/screenshots/tw-hrgpt.png'
-      },
-      {
-        title: 'NextRadio',
-        category_zh: '嵌入式 / IoT',
-        category_en: 'Embedded / IoT',
-        desc_zh: '將終止服務的網路電視盒改造為網路收音機，Python 嵌入式系統開發',
-        desc_en: 'Repurposed discontinued IPTV box into an internet radio using Python on embedded Linux',
-        tags: ['Python', 'Embedded Linux', 'ARM'],
-        thumbnail_abbr: 'NRFM',
-        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a3a1a 50%, #5af78e 100%)',
-        thumbnail_img: 'assets/screenshots/nextradio.jpg'
-      },
-      {
-        title: 'IBM DB2 Dashboard',
-        category_zh: '系統基礎設施',
-        category_en: 'Infrastructure',
-        desc_zh: '即時資料庫監控儀表板，使用 Grafana + Telegraf + InfluxDB 開源方案',
-        desc_en: 'Real-time database monitoring dashboard built with Grafana + Telegraf + InfluxDB',
-        tags: ['Grafana', 'Telegraf', 'InfluxDB'],
-        thumbnail_abbr: 'DB2',
-        thumbnail_gradient: 'linear-gradient(135deg, #0a0e14 0%, #1a2a3a 50%, #4a9eff 100%)',
-        thumbnail_img: 'assets/screenshots/db2-dashboard.png'
-      }
-    ];
-
     const projectsData = [
       {
         id: 'tw-hrgpt',
@@ -1510,6 +1628,10 @@
           const key = el.dataset.i18n;
           if (data[key] !== undefined) el.textContent = data[key];
         });
+        document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+          const key = el.dataset.i18nAria;
+          if (data[key] !== undefined) el.setAttribute('aria-label', data[key]);
+        });
         const labels = document.querySelectorAll('#langToggle .lang-label');
         if (langCode === 'zh') {
           labels[0].classList.add('active');
@@ -1613,20 +1735,102 @@
     }
 
     function renderFeatured() {
-      const grid = document.getElementById('featuredGrid');
+      const carousel = document.getElementById('featuredCarousel');
+      const track = document.getElementById('carouselTrack');
+      const dots = document.getElementById('carouselDots');
       const isZh = lang.current === 'zh';
-      grid.innerHTML = featuredData.map(p => `
-        <article class="featured-card">
-          ${renderThumbnail(p)}
-          <div class="card-body">
-            <div class="card-category">${isZh ? p.category_zh : p.category_en}</div>
-            <h3 class="card-title">${p.title}</h3>
-            <p class="card-desc">${isZh ? p.desc_zh : p.desc_en}</p>
+      const items = projectsData;
+
+      track.innerHTML = items.map(p => `
+        <article class="hero-slide" style="background-image:url('${p.thumbnail_img}'), ${p.thumbnail_gradient};">
+          <div class="hero-content">
+            <div class="card-category">${p.category}</div>
+            <h3 class="hero-title">${p.title}</h3>
+            <p class="hero-desc">${isZh ? p.desc_zh : p.desc_en}</p>
             <div class="card-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <a href="#portfolio" class="hero-cta" data-i18n="carousel_cta" data-category="${p.category}">查看作品</a>
           </div>
         </article>
       `).join('');
+
+      dots.innerHTML = items.map((_, i) =>
+        `<button class="hero-dot${i === 0 ? ' active' : ''}" type="button" data-index="${i}" aria-label="${i + 1}"></button>`
+      ).join('');
+
+      carouselController.init(carousel, track, dots, items.length);
     }
+
+    const carouselController = {
+      index: 0,
+      count: 0,
+      track: null,
+      dots: null,
+      timer: null,
+      bound: false,
+      interval: 7000,
+      init(carousel, track, dots, count) {
+        this.carousel = carousel;
+        this.track = track;
+        this.dots = dots;
+        this.count = count;
+        this.index = 0;
+        if (!this.bound) {
+          this.bindEvents();
+          this.bound = true;
+        }
+        this.startAutoplay();
+        this.update();
+      },
+      bindEvents() {
+        const c = this.carousel;
+        c.querySelector('.hero-prev').addEventListener('click', () => this.go(this.index - 1));
+        c.querySelector('.hero-next').addEventListener('click', () => this.go(this.index + 1));
+        this.dots.addEventListener('click', (e) => {
+          const dot = e.target.closest('.hero-dot');
+          if (dot) this.go(Number(dot.dataset.index));
+        });
+        c.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') this.go(this.index - 1);
+          if (e.key === 'ArrowRight') this.go(this.index + 1);
+        });
+        this.bindSwipe(c);
+        c.addEventListener('mouseenter', () => this.stopAutoplay());
+        c.addEventListener('focusin', () => this.stopAutoplay());
+        c.addEventListener('mouseleave', () => this.startAutoplay());
+        c.addEventListener('focusout', () => this.stopAutoplay());
+        c.addEventListener('click', (e) => {
+          const cta = e.target.closest('.hero-cta');
+          if (cta) portfolio.showCategory(cta.dataset.category);
+        });
+        window.addEventListener('resize', () => this.update());
+      },
+      startAutoplay() {
+        this.stopAutoplay();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        this.timer = setInterval(() => this.go(this.index + 1), this.interval);
+      },
+      stopAutoplay() {
+        if (this.timer) { clearInterval(this.timer); this.timer = null; }
+      },
+      go(i) {
+        this.index = (i + this.count) % this.count;
+        this.update();
+      },
+      update() {
+        const slide = this.track.children[0];
+        const step = slide ? slide.getBoundingClientRect().width : 0;
+        this.track.style.transform = `translateX(${-this.index * step}px)`;
+        this.dots.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('active', i === this.index));
+      },
+      bindSwipe(carousel) {
+        let startX = 0;
+        carousel.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+        carousel.addEventListener('touchend', (e) => {
+          const dx = e.changedTouches[0].clientX - startX;
+          if (Math.abs(dx) > 40) this.go(this.index + (dx < 0 ? 1 : -1));
+        }, { passive: true });
+      }
+    };
 
     function renderSkillBars() {
       ['skillBars', 'runtimeBars'].forEach(id => {
@@ -1779,6 +1983,11 @@
             this.render();
           });
         });
+        this.render();
+      },
+      showCategory(cat) {
+        this.currentFilter = cat;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.filter === cat));
         this.render();
       },
       render() {
